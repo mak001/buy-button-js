@@ -82,6 +82,7 @@ export default class Product extends Component {
     this.selectedVariant = {};
     this.selectedOptions = {};
     this.selectedImage = null;
+    this.customProperties = [];
     this.modalProduct = Boolean(config.modalProduct);
     this.updater = new ProductUpdater(this);
     this.view = new ProductView(this);
@@ -644,6 +645,16 @@ export default class Product extends Component {
     });
   }
 
+  getCustomProperties(evt, target) {
+    let customAttr = {};
+    target.closest('[id^="product-component-"]').querySelectorAll('[name^="properties["]').forEach(function (element) {
+      const name = element.name.match(/[^[\]]+(?=])/g)[0];
+      customAttr[name] = element.value;
+    });
+    this.customProperties = customAttr;
+    return Object.entries(this.customProperties).map(([key, value]) => ({key,value}));
+  }
+
   onButtonClick(evt, target) {
     evt.stopPropagation();
     if (isFunction(this.options.buttonDestination)) {
@@ -651,7 +662,8 @@ export default class Product extends Component {
     } else if (this.options.buttonDestination === 'cart') {
       this.props.closeModal();
       this._userEvent('addVariantToCart');
-      this.props.tracker.trackMethod(this.cart.addVariantToCart.bind(this), 'Update Cart', this.selectedVariantTrackingInfo)(this.selectedVariant, this.selectedQuantity);
+      let customProperties = this.getCustomProperties(evt, target);
+      this.props.tracker.trackMethod(this.cart.addVariantToCart.bind(this), 'Update Cart', this.selectedVariantTrackingInfo)(this.selectedVariant, this.selectedQuantity, true, customProperties);
       if (!this.modalProduct) {
         this.props.setActiveEl(target);
       }
@@ -698,6 +710,10 @@ export default class Product extends Component {
     const value = target.options[target.selectedIndex].value;
     const name = target.getAttribute('name');
     this.updateVariant(name, value);
+  }
+
+  onNoteChange(evt) {
+    this.customProperties[evt.target.getAttribute('data-propertyName')] = evt.target.value;
   }
 
   onQuantityBlur(evt, target) {

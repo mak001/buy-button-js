@@ -75,6 +75,8 @@ const defaults = {
       quantityWithButtons: 'shopify-buy__quantity-with-btns',
       vertical: 'shopify-buy__layout-vertical',
       horizontal: 'shopify-buy__layout-horizontal',
+      productNote:'shopify-buy__product__note',
+      productNoteLabel:'shopify-buy__product__note_label',
     },
     text: {
       button: 'ADD TO CART',
